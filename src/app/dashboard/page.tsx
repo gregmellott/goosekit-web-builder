@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Tabs } from '@/components/ui/Tabs';
 import { BuildForm } from '@/components/BuildForm';
@@ -65,6 +66,21 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+      {/* Token warning */}
+      {!tokens && (
+        <div className="bg-amber-500/5 border border-amber-500/15 rounded-xl px-4 py-3 flex items-center justify-between">
+          <p className="text-sm text-amber-400">
+            API tokens not configured. Set them up to start building.
+          </p>
+          <Link
+            href="/dashboard/settings"
+            className="text-xs font-medium text-amber-400 hover:text-amber-300 whitespace-nowrap ml-4"
+          >
+            Go to Settings
+          </Link>
+        </div>
+      )}
+
       {/* Builder section */}
       <div>
         <h1 className="text-lg font-semibold text-white mb-1">Create</h1>

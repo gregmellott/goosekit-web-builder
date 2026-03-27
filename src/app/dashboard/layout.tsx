@@ -3,7 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
-import { useTokens } from '@/hooks/useTokens';
+import { useAuth } from '@/hooks/useAuth';
+import { clearTokens } from '@/lib/tokens';
 
 export default function DashboardLayout({
   children,
@@ -11,7 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { isAuthenticated, loaded, clearTokens } = useTokens();
+  const { isAuthenticated, loaded, logout } = useAuth();
 
   useEffect(() => {
     if (loaded && !isAuthenticated) {
@@ -21,6 +22,7 @@ export default function DashboardLayout({
 
   function handleLogout() {
     clearTokens();
+    logout();
     router.push('/');
   }
 
