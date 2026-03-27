@@ -24,17 +24,18 @@ export default function LoginPage() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
-    if (!username.trim()) {
-      setError('Username is required');
-      return;
-    }
-    if (!password.trim()) {
-      setError('Password is required');
+    if (!username.trim() || !password.trim()) {
+      setError('Username and password are required');
       return;
     }
     setLoading(true);
-    login({ username: username.trim() });
-    router.push('/dashboard');
+    if (username.trim() === 'admin' && password === 'BadAaaS2026!') {
+      login({ username: username.trim() });
+      router.push('/dashboard');
+    } else {
+      setError('Invalid username or password');
+      setLoading(false);
+    }
   }
 
   if (!loaded) return null;
