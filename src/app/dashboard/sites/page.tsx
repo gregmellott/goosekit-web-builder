@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 interface Site {
   id: string;
@@ -84,6 +84,12 @@ export default function SitesPage() {
 
   useEffect(() => {
     async function fetchSites() {
+      const supabase = getSupabase();
+      if (!supabase) {
+        setError('Supabase not configured');
+        setLoading(false);
+        return;
+      }
       const { data, error: err } = await supabase
         .from('goosekit_sites')
         .select('*')

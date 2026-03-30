@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Job } from '@/types';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 const STORAGE_KEY = 'goosekit_jobs';
 
@@ -23,6 +23,9 @@ function persistJobs(jobs: Job[]) {
 async function saveSiteToSupabase(job: Job) {
   if (job.status !== 'READY') return;
   if (job.type !== 'build' && job.type !== 'redesign') return;
+
+  const supabase = getSupabase();
+  if (!supabase) return;
 
   const { error } = await supabase
     .from('goosekit_sites')
@@ -63,7 +66,6 @@ export function useJobs() {
       const next = prev.map((j) => (j.id === id ? { ...j, ...updates } : j));
       persistJobs(next);
 
-      // If job just completed, save to Supabase
       const updated = next.find((j) => j.id === id);
       if (updated) {
         saveSiteToSupabase(updated);
