@@ -3,14 +3,16 @@
 import { FormEvent, useState } from 'react';
 import { Input, Textarea } from './ui/Input';
 import { Button } from './ui/Button';
+import { ImageUpload } from './ImageUpload';
 
 interface BuildFormProps {
-  onSubmit: (prompt: string, repoName?: string) => Promise<void>;
+  onSubmit: (prompt: string, repoName?: string, images?: string[]) => Promise<void>;
 }
 
 export function BuildForm({ onSubmit }: BuildFormProps) {
   const [prompt, setPrompt] = useState('');
   const [repoName, setRepoName] = useState('');
+  const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,9 +25,10 @@ export function BuildForm({ onSubmit }: BuildFormProps) {
     setError('');
     setLoading(true);
     try {
-      await onSubmit(prompt, repoName || undefined);
+      await onSubmit(prompt, repoName || undefined, images.length > 0 ? images : undefined);
       setPrompt('');
       setRepoName('');
+      setImages([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -47,6 +50,7 @@ export function BuildForm({ onSubmit }: BuildFormProps) {
         value={repoName}
         onChange={(e) => setRepoName(e.target.value)}
       />
+      <ImageUpload images={images} onChange={setImages} />
       {error && <p className="text-sm text-red-400">{error}</p>}
       <Button type="submit" loading={loading} className="w-full">
         Build Website

@@ -26,11 +26,17 @@ export async function healthCheck(): Promise<boolean> {
 export async function buildSite(
   tokens: TokenSet,
   prompt: string,
-  repo_name?: string
+  repo_name?: string,
+  images?: string[]
 ): Promise<JobCreateResponse> {
   return request<JobCreateResponse>('/build', {
     method: 'POST',
-    body: JSON.stringify({ ...tokens, prompt, ...(repo_name ? { repo_name } : {}) }),
+    body: JSON.stringify({
+      ...tokens,
+      prompt,
+      ...(repo_name ? { repo_name } : {}),
+      ...(images ? { images } : {}),
+    }),
   });
 }
 
@@ -38,22 +44,35 @@ export async function redesignSite(
   tokens: TokenSet,
   repo_name: string,
   website_url: string,
-  prompt?: string
+  prompt?: string,
+  images?: string[]
 ): Promise<JobCreateResponse> {
   return request<JobCreateResponse>('/redesign', {
     method: 'POST',
-    body: JSON.stringify({ ...tokens, repo_name, website_url, ...(prompt ? { prompt } : {}) }),
+    body: JSON.stringify({
+      ...tokens,
+      repo_name,
+      website_url,
+      ...(prompt ? { prompt } : {}),
+      ...(images ? { images } : {}),
+    }),
   });
 }
 
 export async function editSite(
   tokens: TokenSet,
   repo_name: string,
-  prompt: string
+  prompt: string,
+  images?: string[]
 ): Promise<JobCreateResponse> {
   return request<JobCreateResponse>('/edit', {
     method: 'POST',
-    body: JSON.stringify({ ...tokens, repo_name, prompt }),
+    body: JSON.stringify({
+      ...tokens,
+      repo_name,
+      prompt,
+      ...(images ? { images } : {}),
+    }),
   });
 }
 

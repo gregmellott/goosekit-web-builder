@@ -24,9 +24,9 @@ export default function DashboardPage() {
   const { tokens } = useTokens();
   const { jobs, addJob, updateJob } = useJobs();
 
-  async function handleBuild(prompt: string, repoName?: string) {
+  async function handleBuild(prompt: string, repoName?: string, images?: string[]) {
     if (!tokens) return;
-    const res = await buildSite(tokens, prompt, repoName);
+    const res = await buildSite(tokens, prompt, repoName, images);
     addJob({
       id: res.id,
       type: 'build' as JobType,
@@ -37,9 +37,9 @@ export default function DashboardPage() {
     });
   }
 
-  async function handleRedesign(repoName: string, websiteUrl: string, prompt?: string) {
+  async function handleRedesign(repoName: string, websiteUrl: string, prompt?: string, images?: string[]) {
     if (!tokens) return;
-    const res = await redesignSite(tokens, repoName, websiteUrl, prompt);
+    const res = await redesignSite(tokens, repoName, websiteUrl, prompt, images);
     addJob({
       id: res.id,
       type: 'redesign' as JobType,
@@ -51,9 +51,9 @@ export default function DashboardPage() {
     });
   }
 
-  async function handleEdit(repoName: string, prompt: string) {
+  async function handleEdit(repoName: string, prompt: string, images?: string[]) {
     if (!tokens) return;
-    const res = await editSite(tokens, repoName, prompt);
+    const res = await editSite(tokens, repoName, prompt, images);
     addJob({
       id: res.id,
       type: 'edit' as JobType,
