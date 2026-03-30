@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Job } from '@/types';
+import { supabase } from '@/lib/supabase';
 
 const STORAGE_KEY = 'goosekit_jobs';
 
@@ -17,6 +18,29 @@ function loadJobs(): Job[] {
 
 function persistJobs(jobs: Job[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+}
+
+async function saveSiteToSupabase(job: Job) {
+  if (job.status !== 'READY') return;
+  if (job.type !== 'build' && job.type !== 'redesign') return;
+
+  const { error } = await supabase
+    .from('goosekit_sites')
+    .upsert(
+      {
+        job_id: job.id,
+        type: job.type,
+        prompt: job.prompt,
+        repo_name: job.repo_name || null,
+        live_url: job.live_url || null,
+        website_url: job.website_url || null,
+      },
+      { onConflict: 'job_id' }
+    );
+
+  if (error) {
+    console.error('Failed to save site to Supabase:', error);
+  }
 }
 
 export function useJobs() {
@@ -38,6 +62,13 @@ export function useJobs() {
     setJobs((prev) => {
       const next = prev.map((j) => (j.id === id ? { ...j, ...updates } : j));
       persistJobs(next);
+
+      // If job just completed, save to Supabase
+      const updated = next.find((j) => j.id === id);
+      if (updated) {
+        saveSiteToSupabase(updated);
+      }
+
       return next;
     });
   }, []);

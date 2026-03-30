@@ -1,14 +1,24 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { useJobs } from '@/hooks/useJobs';
-import { Job } from '@/types';
+import { Spinner } from '@/components/ui/Spinner';
+import { supabase } from '@/lib/supabase';
 
-function SiteCard({ job }: { job: Job }) {
-  const typeLabel = job.type === 'build' ? 'Build' : 'Redesign';
-  const date = new Date(job.created_at).toLocaleDateString('en-US', {
+interface Site {
+  id: string;
+  job_id: string;
+  type: 'build' | 'redesign';
+  prompt: string;
+  repo_name: string | null;
+  live_url: string | null;
+  website_url: string | null;
+  created_at: string;
+}
+
+function SiteCard({ site }: { site: Site }) {
+  const typeLabel = site.type === 'build' ? 'Build' : 'Redesign';
+  const date = new Date(site.created_at).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -21,20 +31,22 @@ function SiteCard({ job }: { job: Job }) {
           <span className="text-xs font-medium text-white/40 uppercase tracking-wider">
             {typeLabel}
           </span>
-          <Badge status={job.status} />
+          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#00d4aa]/10 text-[#00d4aa] border border-[#00d4aa]/20">
+            Live
+          </span>
         </div>
         <span className="text-xs text-white/30">{date}</span>
       </div>
 
-      {job.repo_name && (
-        <p className="text-sm font-mono text-white/70 mb-1">{job.repo_name}</p>
+      {site.repo_name && (
+        <p className="text-sm font-mono text-white/70 mb-1">{site.repo_name}</p>
       )}
-      <p className="text-sm text-white/40 line-clamp-2 mb-4">{job.prompt}</p>
+      <p className="text-sm text-white/40 line-clamp-2 mb-4">{site.prompt}</p>
 
       <div className="flex items-center gap-3">
-        {job.live_url && (
+        {site.live_url && (
           <a
-            href={job.live_url}
+            href={site.live_url}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-sm text-[#00d4aa] hover:text-[#00f0c0] transition-colors"
@@ -47,9 +59,9 @@ function SiteCard({ job }: { job: Job }) {
             Visit site
           </a>
         )}
-        {job.repo_name && (
+        {site.repo_name && (
           <a
-            href={`https://github.com/${job.repo_name}`}
+            href={`https://github.com/${site.repo_name}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white/70 transition-colors"
@@ -66,12 +78,27 @@ function SiteCard({ job }: { job: Job }) {
 }
 
 export default function SitesPage() {
-  const { jobs } = useJobs();
+  const [sites, setSites] = useState<Site[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const completedSites = useMemo(
-    () => jobs.filter((j) => (j.type === 'build' || j.type === 'redesign') && j.status === 'READY'),
-    [jobs]
-  );
+  useEffect(() => {
+    async function fetchSites() {
+      const { data, error: err } = await supabase
+        .from('goosekit_sites')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (err) {
+        setError('Failed to load sites');
+        console.error(err);
+      } else {
+        setSites(data || []);
+      }
+      setLoading(false);
+    }
+    fetchSites();
+  }, []);
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
@@ -80,7 +107,15 @@ export default function SitesPage() {
         Websites you&apos;ve built and redesigned
       </p>
 
-      {completedSites.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Spinner />
+        </div>
+      ) : error ? (
+        <Card>
+          <p className="text-sm text-red-400 text-center py-4">{error}</p>
+        </Card>
+      ) : sites.length === 0 ? (
         <Card>
           <div className="text-center py-8">
             <div className="h-10 w-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mx-auto mb-3">
@@ -98,8 +133,8 @@ export default function SitesPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {completedSites.map((job) => (
-            <SiteCard key={job.id} job={job} />
+          {sites.map((site) => (
+            <SiteCard key={site.id} site={site} />
           ))}
         </div>
       )}
