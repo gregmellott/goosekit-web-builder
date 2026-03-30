@@ -112,7 +112,7 @@ export default function SettingsPage() {
         </form>
 
         <p className="text-[11px] text-white/20 mt-5">
-          Tokens are stored locally in your browser and sent directly to the API. Never shared with third parties.
+          Tokens are synced to your account and sent directly to the API. Never shared with third parties.
         </p>
       </Card>
     </div>
