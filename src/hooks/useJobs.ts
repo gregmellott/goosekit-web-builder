@@ -8,7 +8,7 @@ const STORAGE_KEY = 'goosekit_jobs';
 function loadJobs(): Job[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -16,7 +16,7 @@ function loadJobs(): Job[] {
 }
 
 function persistJobs(jobs: Job[]) {
-  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
 }
 
 export function useJobs() {

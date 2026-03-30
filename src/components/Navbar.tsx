@@ -39,6 +39,16 @@ export function Navbar({ onLogout }: NavbarProps) {
             Builder
           </Link>
           <Link
+            href="/dashboard/sites"
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              pathname === '/dashboard/sites'
+                ? 'text-[#00d4aa] bg-[#00d4aa]/10'
+                : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'
+            }`}
+          >
+            Sites
+          </Link>
+          <Link
             href="/dashboard/settings"
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               pathname === '/dashboard/settings'
